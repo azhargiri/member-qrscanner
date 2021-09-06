@@ -28,7 +28,7 @@
         'use strict';
 		const findMember = function(id)
 		{
-			location.path = "/member/" + id;
+			location.assign("/member?id=" + id);
 		}
 
 		var video = document.createElement("video");
@@ -78,9 +78,8 @@
 			  outputMessage.hidden = true;
 			  outputData.parentElement.hidden = false;
 			  outputData.innerText = code.data;
-			  location.path = "/member/" + code.data;
+			  findMember(code.data);
 
-			  return code.data; 
 			} else {
 			  outputMessage.hidden = false;
 			  outputData.parentElement.hidden = true;
