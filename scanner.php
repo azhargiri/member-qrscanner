@@ -28,7 +28,7 @@
         'use strict';
 		const findMember = function(id)
 		{
-			location.assign("/member?id=" + id);
+			location.assign("/index.php/member?id=" + id);
 		}
 
 		var video = document.createElement("video");
