@@ -19,8 +19,8 @@ DirectoryIndex index.php index.html index.htm
   RewriteCond %{HTTPS} on
   RewriteRule ^ - [E=protossl:s]
 
-  RewriteCond %{SERVER_PORT} 80
-  RewriteCond %{HTTP_HOST} ^localhost 
+  RewriteCond %{HTTPS} off 
+  RewriteCond %{HTTP_HOST} !localhost
   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R,L]
 
   # Make sure Authorization HTTP header is available to PHP
