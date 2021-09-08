@@ -2,25 +2,37 @@
 <html>
   <head>
     <title>QR Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital@0;1&display=swap" rel="stylesheet"> 
     <style>
+      body {
+        font-family: "Roboto", sans;
+     }
       #preview img {
         border: 1px solid black;
         float: left;
         margin: 0 1em 1em 0;
         width: 10em;
       }
+      .camera-container {
+            width: 100%;
+            text-align: center;
+        }
     </style>
   </head>
   <body>
-    <h1>Scan QR Code</h1>
+    <div class="camera-container">
+        <h1>Scan QR Code</h1>
 
-    <noscript>Javascript enabled browser needed</noscript>
-	<div id="loadingMessage"> Unable to access video stream (please make sure you have a webcam enabled)</div>
-	<canvas id="canvas" hidden></canvas>
+        <div id="loadingMessage"> Unable to access video stream (please make sure you have a webcam enabled)</div>
+        <noscript>Javascript enabled browser needed</noscript>
+        <canvas id="canvas" hidden></canvas>
 	<div id="output" hidden>
-		<div id="outputMessage">No QR code detected.</div>
+		<div id="outputMessage">Arahkan kamera ke QR code untuk memindai</div>
 		<div hidden><b>Data:</b> <span id="outputData"></span></div>
 	</div>
+    </div>
 
     <script type="text/javascript" src="node_modules/jsqr/dist/jsQR.js"></script>
 
@@ -92,10 +104,12 @@
 			  outputData.parentElement.hidden = false;
 			  outputData.innerText = code.data;
 
-              qrFound = true;
-              video.pause();
+              if (code.data) {
+                qrFound = true;
+                video.pause();
 
-			  findMember(code.data);
+                findMember(code.data);
+              }
 
 
 			} else {
