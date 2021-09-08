@@ -2,6 +2,8 @@
 
 // ================= Start bootstraping =================
 
+$always_https = false;
+
 // Parse URI to get route path
 $base_script_name = explode('/', $_SERVER['SCRIPT_NAME']);
 $last_array = array_pop($base_script_name);
@@ -17,6 +19,10 @@ $request_path = rtrim($request_path, '?');
 $real_request_path = substr($request_path, strlen($base_application_path));
 
 // $request_path, $real_request_path
+
+if (getenv('ALWAYS_HTTPS')) 
+    $always_https = true;
+
 
 // This is route path
 $path = $real_request_path ?: '/';
@@ -40,9 +46,9 @@ $https = false;
 
 function http_or_https()
 {
-    global $https;
+    global $https, $always_https;
 
-    return $https ? 'https' : 'http';
+    return $https || $always_https ? 'https' : 'http';
 }
 // -- end Detect HTTPS
 
