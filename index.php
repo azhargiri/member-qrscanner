@@ -1,10 +1,58 @@
 <?php
 
-// var_dump($_SERVER); die();
-$path = ($_SERVER['PATH_INFO'] ?: '/');
+// ================= Start bootstraping =================
 
-if ($path === null) throw new Exception('unknown route');
+// Parse URI to get route path
+$base_script_name = explode('/', $_SERVER['SCRIPT_NAME']);
+$last_array = array_pop($base_script_name);
+// This is base application path
+$base_application_path = join('/', $base_script_name);
 
+$request_uri = $_SERVER['REQUEST_URI'];
+$request_path = substr($request_uri, 0, strlen($request_uri) - strlen($_SERVER['QUERY_STRING']));
+
+// This is current base path
+$request_path = rtrim($request_path, '?');
+
+$real_request_path = substr($request_path, strlen($base_application_path));
+
+// $request_path, $real_request_path
+
+// This is route path
+$path = $real_request_path ?: '/';
+
+// -- end Parse URI
+
+function make_route_of_path($path = '', $query_params = [])
+{
+    global $base_application_path;
+
+    $url = http_or_https() . '://' . $_SERVER['HTTP_HOST'] . $base_application_path . $path;
+    $query_string = http_build_query($query_params);
+    
+    return $url . ($query_string ? '?' . $query_string : '');
+}
+
+// Detect HTTPS
+$https = false;
+
+( isset($_SERVER['HTTPS']) && strtoupper($_SERVER['HTTPS'] == 'ON') ) && $https = true;
+
+function http_or_https()
+{
+    global $https;
+
+    return $https ? 'https' : 'http';
+}
+// -- end Detect HTTPS
+
+
+// ================= end boostraping =================
+
+
+// Let's name it controller
+
+if ($path === null) throw new Exception('Unknown route');
 
 if ($path == '/')
 {
@@ -16,15 +64,6 @@ if ($path == '/member')
 {
     $id = @$_GET['id'];
 
-    echo "<h1>Halo member {$id}</h1>";
-    echo "<hr>";
-    echo "<a href=\"https://{$_SERVER['HTTP_HOST']}/\">Kembali</a>";
-
+    include 'member.php';
     exit;
 }
-
-
-
-
-
-?>

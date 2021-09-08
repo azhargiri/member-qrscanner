@@ -14,6 +14,7 @@
   <body>
     <h1>Scan QR Code</h1>
 
+    <noscript>Javascript enabled browser needed</noscript>
 	<div id="loadingMessage"> Unable to access video stream (please make sure you have a webcam enabled)</div>
 	<canvas id="canvas" hidden></canvas>
 	<div id="output" hidden>
@@ -28,7 +29,8 @@
         'use strict';
 		const findMember = function(id)
 		{
-			location.assign("/index.php/member?id=" + id);
+            const member_route = '<?= make_route_of_path('/member', ['id' => '']) ?>'
+			location.assign(member_route + id);
 		}
 
 		var video = document.createElement("video");
@@ -38,6 +40,7 @@
 		var outputContainer = document.getElementById("output");
 		var outputMessage = document.getElementById("outputMessage");
 		var outputData = document.getElementById("outputData");
+        var qrFound = false
 
 		function drawLine(begin, end, color) {
 		  canvas.beginPath();
@@ -48,15 +51,25 @@
 		  canvas.stroke();
 		}
 
-		// Use facingMode: environment to attemt to get the front camera on phones
-		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
-		  video.srcObject = stream;
-		  video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
-		  video.play();
-		  requestAnimationFrame(tick);
-		});
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // Use facingMode: environment to attemt to get the front camera on phones
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+              video.srcObject = stream;
+              video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
+              video.play();
+              requestAnimationFrame(tick);
+            })
+        } else {
+            loadingMessage.innerText = 'Unsupported browser. Try Firefox, Chrome, Safari, or Edge.'
+        }
+        
 
 		function tick() {
+          if (qrFound) {
+              return true
+          }
+
 		  loadingMessage.innerText = "⌛ Loading video..."
 		  if (video.readyState === video.HAVE_ENOUGH_DATA) {
 			loadingMessage.hidden = true;
@@ -78,9 +91,13 @@
 			  outputMessage.hidden = true;
 			  outputData.parentElement.hidden = false;
 			  outputData.innerText = code.data;
+
+              qrFound = true;
+              video.pause();
+
 			  findMember(code.data);
 
-              return code
+
 			} else {
 			  outputMessage.hidden = false;
 			  outputData.parentElement.hidden = true;
