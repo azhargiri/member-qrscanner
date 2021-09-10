@@ -52,7 +52,9 @@
 		var outputContainer = document.getElementById("output");
 		var outputMessage = document.getElementById("outputMessage");
 		var outputData = document.getElementById("outputData");
-        var qrFound = false
+		var qrFound = false
+		var lastScanner = new Date;
+		var scanDelay = 1000;
 
 		function drawLine(begin, end, color) {
 		  canvas.beginPath();
@@ -64,23 +66,23 @@
 		}
 
 
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // Use facingMode: environment to attemt to get the front camera on phones
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
-              video.srcObject = stream;
-              video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
-              video.play();
-              requestAnimationFrame(tick);
-            })
-        } else {
-            loadingMessage.innerText = 'Unsupported browser. Try Firefox, Chrome, Safari, or Edge.'
-        }
-        
+		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+			// Use facingMode: environment to attemt to get the front camera on phones
+			navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+			  video.srcObject = stream;
+			  video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
+			  video.play();
+			  requestAnimationFrame(tick);
+			})
+		} else {
+			loadingMessage.innerText = 'Unsupported browser. Try Firefox, Chrome, Safari, or Edge.'
+		}
+		
 
 		function tick() {
-          if (qrFound) {
-              return true
-          }
+		  if (qrFound) {
+			  return true
+		  }
 
 		  loadingMessage.innerText = "⌛ Loading video..."
 		  if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -92,9 +94,16 @@
 			canvasElement.width = video.videoWidth;
 			canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
 			var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-			var code = jsQR(imageData.data, imageData.width, imageData.height, {
-			  inversionAttempts: "dontInvert",
-			});
+			var code;
+
+			if ((new Date) - lastScanner > scanDelay) {
+				code = jsQR(imageData.data, imageData.width, imageData.height, {
+				  inversionAttempts: "dontInvert",
+				});
+
+				lastScanner = new Date;
+			}
+
 			if (code) {
 			  drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF3B58");
 			  drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
@@ -104,13 +113,12 @@
 			  outputData.parentElement.hidden = false;
 			  outputData.innerText = code.data;
 
-              if (code.data) {
-                qrFound = true;
-                video.pause();
+			  if (code.data) {
+				qrFound = true;
+				// video.pause();
 
-                findMember(code.data);
-              }
-
+				findMember(code.data);
+			  }
 
 			} else {
 			  outputMessage.hidden = false;
