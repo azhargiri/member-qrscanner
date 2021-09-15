@@ -21,6 +21,7 @@ DirectoryIndex index.php index.html index.htm
 
   RewriteCond %{HTTPS} off 
   RewriteCond %{HTTP_HOST} !^localhost$
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R,L]
 
   # Make sure Authorization HTTP header is available to PHP
