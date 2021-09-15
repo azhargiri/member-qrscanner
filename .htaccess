@@ -20,7 +20,7 @@ DirectoryIndex index.php index.html index.htm
   # RewriteRule ^ - [E=protossl:s]
 
   RewriteCond %{HTTPS} off 
-  RewriteCond %{HTTP_HOST} !localhost
+  RewriteCond %{HTTP_HOST} !^localhost$
   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R,L]
 
   # Make sure Authorization HTTP header is available to PHP
@@ -53,7 +53,8 @@ DirectoryIndex index.php index.html index.htm
   RewriteCond %{REQUEST_URI} !=/favicon.ico
   RewriteRule ^ index.php [L]
 
-  RewriteCond %{REQUEST_URI} /vendor
+  # RewriteCond %{REQUEST_URI} ^/vendor [F]
+  
   # Deny access to any other PHP files that do not match the rules above.
   # Specifically, disallow autoload.php from being served directly.
   RewriteRule "^(.+/.*|autoload)\.php($|/)" - [F]
